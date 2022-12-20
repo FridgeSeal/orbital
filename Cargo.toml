@@ -1,0 +1,19 @@
+[package]
+name = "orbital"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cid = "0.9.0"
+figment = { version = "0.10.8", features = ["serde_yaml", "parking_lot", "yaml"] }
+fnv = "1.0.7"
+petgraph = { version = "0.6.2", features = ["serde-1"] }
+prae = { version = "0.8.4", features = ["serde"] }
+prql-compiler = "0.3.1"
+serde = { version = "1.0.149", features = ["derive"] }
+shrinkwraprs = { version = "0.3.0", features = ["strict"] }
+smartstring = { version = "1.0.1", features = ["serde"] }
+version-rs = { version = "0.2.0", features = ["serde"] }
+xxhash-rust = { version = "0.8.6", features = ["xxh3"] }

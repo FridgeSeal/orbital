@@ -1,0 +1,7 @@
+prql dialect:clickhouse
+
+from employees
+filter age > 35
+filter $1 != $2
+join side:inner other_table [==employee_id]
+select [name, employee_id, workplace]
