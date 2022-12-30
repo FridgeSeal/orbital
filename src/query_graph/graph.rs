@@ -86,9 +86,9 @@ impl From<ValidGraphData> for DiAcylcicGraph {
     }
 }
 
-struct ValidGraphData {
-    nodes: Vec<u8>,
-    edges: Vec<(u8, u8)>,
+pub struct ValidGraphData {
+    nodes: Vec<NodeId>,
+    edges: Vec<(NodeId, NodeId)>,
 }
 
 impl ValidGraphData {
@@ -101,7 +101,7 @@ impl ValidGraphData {
                 acc.insert(dest);
                 acc
             });
-        let node_id_set: FnvHashSet<&u8> = node_ids.iter().collect();
+        let node_id_set: FnvHashSet<&NodeId> = node_ids.iter().collect();
         let mismatches: Vec<_> = distinct_edge_ids.difference(&node_id_set).collect();
         if !mismatches.is_empty() {
             println!("Invalid dataset provided. Edge data refers to un-referenced nodes!");
