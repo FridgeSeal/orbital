@@ -7,7 +7,7 @@ use petgraph::{
     Directed, Graph,
 };
 
-type NodeId = u8;
+type NodeId = u64;
 type IxType = u8;
 type IdLookupTable = FnvHashMap<NodeId, NodeIndex<IxType>>;
 pub struct QueryGraph {
