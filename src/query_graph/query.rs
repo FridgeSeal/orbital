@@ -8,13 +8,10 @@ use std::{collections::HashMap, ops::Deref};
 use xxhash_rust::xxh3::{xxh3_64, Xxh3Builder};
 
 #[derive(Debug, Shrinkwrap, Eq, PartialEq, Hash, Clone, Copy, Default, PartialOrd, Ord)]
-struct QueryId(u64);
+pub struct QueryId(u64);
 
 #[derive(Debug, Shrinkwrap, Eq, PartialEq, Hash, Clone, Default, PartialOrd, Ord)]
-struct TableName(String);
-
-#[derive(Debug, shrinkwraprs::Shrinkwrap, PartialEq, Eq, Hash)]
-struct QueryName(String);
+pub struct QueryName(String);
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum QueryKind {
@@ -58,7 +55,7 @@ impl Hash for Query {
 }
 
 #[derive(Debug)]
-struct RawQuery {
+pub struct RawQuery {
     query_string: String,
     name: String,
 }
@@ -67,15 +64,15 @@ pub type QueryMap<K, V> = HashMap<K, V, Xxh3Builder>;
 
 #[derive(Debug)]
 pub struct ResourceIdMap<T: Eq + Hash> {
-    inner: QueryMap<String, T>,
-    reverse: fnv::FnvHashMap<T, String>,
+    pub(crate) inner: QueryMap<QueryName, T>,
+    reverse: fnv::FnvHashMap<T, QueryName>,
 }
 
 #[derive(Debug)]
 pub struct QueryCollection {
     // Project? Scope? Might be better names
-    query_map: QueryMap<String, QueryKind>,
-    query_id_map: ResourceIdMap<QueryId>,
+    query_map: QueryMap<QueryName, QueryKind>,
+    pub(crate) query_id_map: ResourceIdMap<QueryId>,
 }
 
 impl Query {
@@ -142,7 +139,7 @@ impl QueryCollection {
         }
     }
 
-    fn add_queries(&mut self, queries: Vec<RawQuery>) {
+    pub fn add_queries(&mut self, queries: Vec<RawQuery>) {
         let parsed_queries: Vec<_> = queries
             .iter()
             .filter_map(|q| self.prepare_query(&q.query_string, &q.name).ok())

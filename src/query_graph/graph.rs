@@ -11,12 +11,12 @@ type NodeId = u8;
 type IxType = u8;
 type IdLookupTable = FnvHashMap<NodeId, NodeIndex<IxType>>;
 pub struct QueryGraph {
-    inner: DiGraph<NodeId, (), IxType>,
+    pub inner: DiGraph<NodeId, (), IxType>,
     lookup_table: IdLookupTable,
 }
 
 impl QueryGraph {
-    fn new_from_valid_data(valid_data: ValidGraphData) -> Option<Self> {
+    pub fn new_from_valid_data(valid_data: ValidGraphData) -> Option<Self> {
         let dag: DiAcylcicGraph = valid_data.into();
         if algo::is_cyclic_directed(&dag.raw_graph) {
             return None;
@@ -30,7 +30,10 @@ impl QueryGraph {
         ValidGraphData::new_from_edges(&edges).and_then(QueryGraph::new_from_valid_data)
     }
 
-    pub fn new_from_ids_and_edges(node_ids: Vec<u8>, edges: Vec<(u8, u8)>) -> Option<Self> {
+    pub fn new_from_ids_and_edges(
+        node_ids: Vec<NodeId>,
+        edges: Vec<(NodeId, NodeId)>,
+    ) -> Option<Self> {
         ValidGraphData::new_from_id_edge_pairs(&node_ids, &edges)
             .and_then(QueryGraph::new_from_valid_data)
     }
@@ -89,7 +92,7 @@ struct ValidGraphData {
 }
 
 impl ValidGraphData {
-    fn new_from_id_edge_pairs(node_ids: &[u8], edges: &[(u8, u8)]) -> Option<Self> {
+    pub fn new_from_id_edge_pairs(node_ids: &[NodeId], edges: &[(NodeId, NodeId)]) -> Option<Self> {
         // Ensure edges only refer to nodes present in the node_ids
         let distinct_edge_ids = edges
             .iter()
@@ -129,7 +132,7 @@ impl ValidGraphData {
         Some(valid_graph_data)
     }
 
-    fn new_from_edges(edges: &[(u8, u8)]) -> Option<Self> {
+    pub fn new_from_edges(edges: &[(NodeId, NodeId)]) -> Option<Self> {
         let node_ids: Vec<_> = edges
             .iter()
             .fold(FnvHashSet::default(), |mut acc, (src, dest)| {
