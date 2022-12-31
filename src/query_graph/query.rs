@@ -19,6 +19,29 @@ pub enum QueryKind {
     TableQuery(TableQuery),
 }
 
+impl QueryKind {
+    pub fn dependencies(&self) -> Vec<QueryName> {
+        match self {
+            QueryKind::Query(q) => q.dependencies.clone(),
+            QueryKind::TableQuery(_) => Vec::new(),
+        }
+    }
+
+    pub fn id(&self) -> &QueryId {
+        match self {
+            QueryKind::Query(q) => &q.id,
+            QueryKind::TableQuery(t) => &t.id,
+        }
+    }
+
+    pub fn name(&self) -> &QueryName {
+        match self {
+            QueryKind::Query(q) => &q.name,
+            QueryKind::TableQuery(t) => &t.name,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct TableQuery {
     /// A structure used to define pre-existing, or fixed, tables already present within our data source.
