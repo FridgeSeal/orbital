@@ -228,6 +228,18 @@ impl QueryCollection {
         );
         Ok(query)
     }
+
+    pub fn get_query_depedencies(&self, q: &QueryName) -> Vec<QueryId> {
+        if let Some(e) = self.query_map.get(q) {
+            e.dependencies()
+                .iter()
+                .filter_map(|x| self.query_id_map.inner.get(x))
+                .map(|y| y.to_owned())
+                .collect::<Vec<_>>()
+        } else {
+            Vec::new()
+        }
+    }
 }
 
 impl Deref for QueryCollection {
