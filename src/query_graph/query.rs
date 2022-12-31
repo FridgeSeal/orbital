@@ -83,6 +83,15 @@ pub struct RawQuery {
     name: String,
 }
 
+impl RawQuery {
+    pub fn new(name: impl Into<String>, query_string: impl Into<String>) -> Self {
+        Self {
+            query_string: query_string.into(),
+            name: name.into(),
+        }
+    }
+}
+
 pub type QueryMap<K, V> = HashMap<K, V, Xxh3Builder>;
 
 #[derive(Debug)]
@@ -188,15 +197,14 @@ impl QueryCollection {
             .map(|x| x.to_owned())
             .collect();
         table_names.into_iter().for_each(|t| {
-            let name = t.deref();
+            // let name = t.deref();
             let id = QueryId(xxh3_64(t.deref().as_bytes()));
             let tbl = TableQuery {
-                name: TableName(name.clone()),
+                name: t.clone(),
                 id: id.clone(),
             };
-            self.query_id_map.insert_resource(name.clone(), id.clone());
-            self.query_map
-                .insert(name.clone(), QueryKind::TableQuery(tbl));
+            self.query_id_map.insert_resource(t.clone(), id.clone());
+            self.query_map.insert(t, QueryKind::TableQuery(tbl));
         });
     }
 
