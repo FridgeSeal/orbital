@@ -47,14 +47,14 @@ pub struct TableQuery {
     /// A structure used to define pre-existing, or fixed, tables already present within our data source.
     /// dbt calls the seeds/sources.
     id: QueryId,
-    name: TableName,
+    name: QueryName,
 }
 #[derive(Debug)]
 pub struct Query {
     id: QueryId,
     name: QueryName,
     resolved_query: prql_compiler::ast::rq::Query,
-    dependencies: Vec<TableName>,
+    dependencies: Vec<QueryName>,
 }
 
 impl PartialEq for Query {
@@ -103,7 +103,7 @@ impl Query {
         id: QueryId,
         name: &str,
         parsed_query: prql_compiler::ast::rq::Query,
-        dependencies: Vec<TableName>,
+        dependencies: Vec<QueryName>,
     ) -> Self {
         Self {
             id,
@@ -122,7 +122,7 @@ impl<T: Eq + Hash + Copy + Default + Ord> ResourceIdMap<T> {
         }
     }
 
-    pub fn insert_resource(&mut self, resource_name: String, resource_id: T) {
+    pub fn insert_resource(&mut self, resource_name: QueryName, resource_id: T) {
         self.inner.insert(resource_name.clone(), resource_id);
         self.reverse.insert(resource_id, resource_name);
     }
@@ -223,20 +223,26 @@ impl QueryCollection {
 }
 
 impl Deref for QueryCollection {
-    type Target = QueryMap<String, QueryKind>;
+    type Target = QueryMap<QueryName, QueryKind>;
 
     fn deref(&self) -> &Self::Target {
         &self.query_map
     }
 }
 
-fn extract_dependent_tables(query: &prql_compiler::ast::rq::Query) -> Vec<TableName> {
+fn extract_dependent_tables(query: &prql_compiler::ast::rq::Query) -> Vec<QueryName> {
     query
         .tables
         .iter()
         .filter_map(|t| t.name.clone())
-        .map(|x| TableName(x.into()))
+        .map(|x| QueryName(x.into()))
         .collect()
+}
+
+impl From<&str> for QueryName {
+    fn from(value: &str) -> Self {
+        QueryName(value.into())
+    }
 }
 
 #[cfg(test)]
@@ -356,7 +362,7 @@ mod test_super {
         let mut collection = QueryCollection::new();
         collection.add_queries(queries);
         dbg!(&collection.query_id_map);
-        let q2 = collection.query_map.get("q2");
+        let q2 = collection.query_map.get(&QueryName("q2".into()));
         assert!(matches!(q2, Some(QueryKind::Query(_))));
         let q2 = match q2 {
             Some(QueryKind::Query(x)) => Some(x),
@@ -365,7 +371,7 @@ mod test_super {
         .unwrap();
         let mut q2_dependencies = q2.dependencies.clone();
         q2_dependencies.sort();
-        let expected_deps = vec![TableName("q1".into()), TableName("rituals".into())];
+        let expected_deps = vec![QueryName("q1".into()), QueryName("rituals".into())];
         assert_eq!(q2_dependencies, expected_deps);
     }
 
